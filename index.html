@@ -13,32 +13,13 @@
       <input type="text" id="name" hint="Movie Name" />
       <button id="submit">Search</button>
       <div id="search-results"></div>
-      <div id="details"></div>
-    <div id="container">
-      <p>
-        If you can see this, React is not working right.
-        If you checked out the source from GitHub make sure to run <code>grunt</code>.
-      </p>
+      <div id="container">
+	<p>
+          If you can see this, React is not working right.
+          If you checked out the source from GitHub make sure to run <code>grunt</code>.
+	</p>
+      </div>
     </div>
-    </div>
-    <script>
-      $(document).ready(function() {
-      $("#submit").click(onClick=function() {
-      name = $("#name").val();
-      if( name.length != 0) {
-      $.ajax({
-      url: "http://omdbapi.com",
-      data: {s: name},
-      type: "GET",
-      dataType: "json",
-
-      success: function(json) {
-      console.log("Got a response");
-      $("#search-results").text(json["Search"][0]["Title"]);
-      $("#details").text(json["Search"][0]["Year"]);
-      }
-      })}})});
-    </script>
     <script src="js/es5-shim.min.js"></script>
     <script src="js/es5-sham.min.js"></script>
     <script src="js/console-polyfill.js"></script>
@@ -50,10 +31,10 @@
 
       var AnimateDemo = React.createClass({
         getInitialState: function() {
-          return {start: 0};
+          return {};
         },
 
-        componentDidMount: function() {
+        /*componentDidMount: function() {
           this.interval = setInterval(this.tick, INTERVAL);
         },
 
@@ -63,10 +44,15 @@
 
         tick: function() {
           this.setState({start: this.state.start + 1});
-        },
+        },*/
 
         render: function() {
-          var children = [];
+          result = [<ul>];
+          this.state.forEach(function(_, movie){
+	    result.push(<li>{movie.Title} - {movie.Year}</li>);
+	  });
+	  result.push(</ul>);
+          /*var children = [];
           var pos = 0;
           var colors = ['red', 'gray', 'blue'];
           for (var i = this.state.start; i < this.state.start + 3; i++) {
@@ -76,12 +62,12 @@
             };
             pos++;
             children.push(<div key={i} className="animateItem" style={style}>{i}</div>);
-          }
+          }*/
           return (
             <CSSTransitionGroup
               className="animateExample"
               transitionName="example">
-              {children}
+              {result}
             </CSSTransitionGroup>
           );
         }
@@ -91,6 +77,51 @@
         <AnimateDemo />,
         document.getElementById('container')
       );
+    </script>
+    <script>
+      // These should really be member functions
+      format_html = function(descr) {
+        result = "<ul>";
+	descr.foreach(function(movie) {
+	  result = result + "<li>" + movie.title + "</li>";
+	});
+	return result + "</ul>";
+      }
+
+      query = function(name) {
+        $.ajax({
+          url: "http://omdbapi.com",
+          data: {t: name,
+                 tomatoes: true},
+          type: "GET",
+          dataType: "json",
+
+          success: function(json) {
+            var movies = json["Search"];
+            if(movies) {
+              var description = [];
+              movies.foreach(function(movie) {
+                description.push({title: movie["Title"],
+                                  year: movie["Year"],
+                                 });
+              });
+              $("#search-results").html(format_html(description));
+            }
+            else {
+              $("#search-results").text("");
+            }
+          }
+        });
+      }
+
+      $(document).ready(function() {
+        $("#submit").click(onClick=function() {
+          name = $("#name").val();
+          if( name.length != 0) {
+              query(name);
+          }
+        })
+      });
     </script>
   </body>
 </html>
