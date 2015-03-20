@@ -29,7 +29,7 @@
       var CSSTransitionGroup = React.addons.CSSTransitionGroup;
       var INTERVAL = 2000;
 
-      var AnimateDemo = React.createClass({
+      var MovieDetails = React.createClass({
         getInitialState: function() {
           return {};
         },
@@ -46,82 +46,59 @@
           this.setState({start: this.state.start + 1});
         },*/
 
+        handleSubmit: function(event) {
+          event.preventDefault();
+          this.setState({});
+          
+          name = $("#name").val();
+          if( name.length != 0) {
+            $.ajax({
+              url: "http://omdbapi.com",
+              data: {s: name},
+              type: "GET",
+              dataType: "json",
+
+              success: function(json) {
+                var movies = json["Search"];
+                if(movies) {
+                  var description = {};
+                  movies.foreach(function(movie){
+                    description[movie["imdbID"]] = {title: movie["Title"],
+                                                    year: movie["Year"],
+                                                   };
+                                                });
+                  this.setState(description);
+                }
+              }
+            });
+          }
+        },
+
         render: function() {
-          result = [<ul>];
+          result = [];
           this.state.forEach(function(_, movie){
-	    result.push(<li>{movie.Title} - {movie.Year}</li>);
+	    result.push(<div>{movie.Title} - {movie.Year}</div>);
 	  });
-	  result.push(</ul>);
-          /*var children = [];
-          var pos = 0;
-          var colors = ['red', 'gray', 'blue'];
-          for (var i = this.state.start; i < this.state.start + 3; i++) {
-            var style = {
-              left: pos * 128,
-              background: colors[i % 3]
-            };
-            pos++;
-            children.push(<div key={i} className="animateItem" style={style}>{i}</div>);
-          }*/
-          return (
-            <CSSTransitionGroup
-              className="animateExample"
-              transitionName="example">
-              {result}
-            </CSSTransitionGroup>
+          return(
+            <div>
+              <CSSTransitionGroup
+                className="animateExample"
+                transitionName="example">
+                {result}
+              </CSSTransitionGroup>
+              <form className="requestForm" onSubmit={this.handleSubmit}>
+	        <input type="text" placeholder="Movie Name" />
+	        <input type="submit" value="Search" />
+	      </form>
+	    </div>
           );
-        }
+	}
       });
 
       React.render(
-        <AnimateDemo />,
-        document.getElementById('container')
+        <MovieDetails />,
+        document.getElementById('place-holder')
       );
-    </script>
-    <script>
-      // These should really be member functions
-      format_html = function(descr) {
-        result = "<ul>";
-	descr.foreach(function(movie) {
-	  result = result + "<li>" + movie.title + "</li>";
-	});
-	return result + "</ul>";
-      }
-
-      query = function(name) {
-        $.ajax({
-          url: "http://omdbapi.com",
-          data: {t: name,
-                 tomatoes: true},
-          type: "GET",
-          dataType: "json",
-
-          success: function(json) {
-            var movies = json["Search"];
-            if(movies) {
-              var description = [];
-              movies.foreach(function(movie) {
-                description.push({title: movie["Title"],
-                                  year: movie["Year"],
-                                 });
-              });
-              $("#search-results").html(format_html(description));
-            }
-            else {
-              $("#search-results").text("");
-            }
-          }
-        });
-      }
-
-      $(document).ready(function() {
-        $("#submit").click(onClick=function() {
-          name = $("#name").val();
-          if( name.length != 0) {
-              query(name);
-          }
-        })
-      });
     </script>
   </body>
 </html>
