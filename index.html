@@ -2,28 +2,43 @@
 <html>
   <head>
     <meta http-equiv='Content-type' content='text/html; charset=utf-8'>
-    <title>Example with Transitions</title>
+    <title>Movie Exploration</title>
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/transition.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
   </head>
   <body>
-    <h1>Example with Transitions</h1>
+    <h1>Movies!</h1>
+    <div id="place-holder">
+      <input type="text" id="name" hint="Movie Name" />
+      <button id="submit">Search</button>
+      <div id="search-results"></div>
+      <div id="details"></div>
     <div id="container">
-      <p>
-        To install React, follow the instructions on
-        <a href="http://www.github.com/facebook/react/">GitHub</a>.
-      </p>
       <p>
         If you can see this, React is not working right.
         If you checked out the source from GitHub make sure to run <code>grunt</code>.
       </p>
     </div>
-    <h4>Example Details</h4>
-    <p>This is written with JSX and transformed in the browser.<p>
-    <p>
-      Learn more about React at
-      <a href="http://facebook.github.io/react" target="_blank">facebook.github.io/react</a>.
-    </p>
+    </div>
+    <script>
+      $(document).ready(function() {
+      $("#submit").click(onClick=function() {
+      name = $("#name").val();
+      if( name.length != 0) {
+      $.ajax({
+      url: "http://omdbapi.com",
+      data: {s: name},
+      type: "GET",
+      dataType: "json",
+
+      success: function(json) {
+      console.log("Got a response");
+      $("#search-results").text(json["Search"][0]["Title"]);
+      $("#details").text(json["Search"][0]["Year"]);
+      }
+      })}})});
+    </script>
     <script src="js/es5-shim.min.js"></script>
     <script src="js/es5-sham.min.js"></script>
     <script src="js/console-polyfill.js"></script>
