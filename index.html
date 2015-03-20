@@ -10,9 +10,6 @@
   <body>
     <h1>Movies!</h1>
     <div id="place-holder">
-      <input type="text" id="name" hint="Movie Name" />
-      <button id="submit">Search</button>
-      <div id="search-results"></div>
       <div id="container">
 	<p>
           If you can see this, React is not working right.
@@ -51,7 +48,7 @@
           this.setState({});
           
           name = $("#name").val();
-          if( name.length != 0) {
+          if(name.length != 0) {
             $.ajax({
               url: "http://omdbapi.com",
               data: {s: name},
@@ -59,15 +56,16 @@
               dataType: "json",
 
               success: function(json) {
+                console.log("Received:\n" + json);
                 var movies = json["Search"];
                 if(movies) {
-                  var description = {};
-                  movies.foreach(function(movie){
-                    description[movie["imdbID"]] = {title: movie["Title"],
-                                                    year: movie["Year"],
-                                                   };
-                                                });
-                  this.setState(description);
+                  this.setState(function(previousState, currentProps) {
+                    for(var movie in movies) {
+                      description[movie["imdbID"]] = {title: movie["Title"],
+                                                      year: movie["Year"],
+                                                     };
+                    };
+                  });
                 }
               }
             });
@@ -76,9 +74,13 @@
 
         render: function() {
           result = [];
-          this.state.forEach(function(_, movie){
-	    result.push(<div>{movie.Title} - {movie.Year}</div>);
-	  });
+          if(this.state){
+            console.log(this.state);
+            for(var key in this.state) {
+              movie = this.state[key];
+              result.push(<div>{movie.Title} - {movie.Year}</div>);
+            };
+          }
           return(
             <div>
               <CSSTransitionGroup
@@ -87,7 +89,7 @@
                 {result}
               </CSSTransitionGroup>
               <form className="requestForm" onSubmit={this.handleSubmit}>
-	        <input type="text" placeholder="Movie Name" />
+	        <input type="text" id="name" placeholder="Movie Name" />
 	        <input type="submit" value="Search" />
 	      </form>
 	    </div>
