@@ -61,6 +61,7 @@
           event.preventDefault();
           this.setState({});
 
+	  // TODO: I'm almost positive I want to pull this from the Component instead
           name = $("#name").val();
           if(name.length != 0) {
             $.ajax({
@@ -73,12 +74,29 @@
                 console.log("Received:\n" + json);
                 var movies = json["Search"];
                 if(movies) {
-                  this.setState(function(previousState, currentProps) {
+                  this.replaceState(function(previousState, currentProps) {
+	            var description = {};
                     for(var movie in movies) {
-                      description[movie["imdbID"]] = {title: movie["Title"],
-                                                      year: movie["Year"],
+	              var title = movie["Title"];
+                      description[movie["imdbID"]] = {"title": title,
+                                                      "year": movie["Year"]
                                                      };
+	              $.ajax({
+	                url: "http://omdbapi.com",
+	                data: {t: title,
+	                       tomatoes: true},
+	                dataType: "json",
+	                success: function(details) {
+	                  this.setState(function(previousState, currentProps) {
+	                    var nextState = previousState.clone();
+	                    var _id = json["imdbID"];
+	                    nextState[_id] = details;
+	                    return nextState;
+	                  });
+	                }
+	              });
                     };
+	            return description;
                   });
                 }
               }
