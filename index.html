@@ -26,6 +26,20 @@
       var CSSTransitionGroup = React.addons.CSSTransitionGroup;
       var INTERVAL = 2000;
 
+      var MovieRequest = React.createClass({
+        getInitialState: function() {
+          return {"name": ""};
+        },
+        render: function() {
+          return (
+              <form onSubmit={this.props.submitter}>
+                <input type="text" id="name" placeholder="Movie Name" />
+                <input type="submit" value="Search" />
+	      </form>
+          );
+        }
+      });
+
       var MovieDetails = React.createClass({
         getInitialState: function() {
           return {};
@@ -46,7 +60,7 @@
         handleSubmit: function(event) {
           event.preventDefault();
           this.setState({});
-          
+
           name = $("#name").val();
           if(name.length != 0) {
             $.ajax({
@@ -83,16 +97,13 @@
           }
           return(
             <div>
+	      <MovieRequest submitter={this.handleSubmit} />
               <CSSTransitionGroup
                 className="animateExample"
                 transitionName="example">
                 {result}
               </CSSTransitionGroup>
-              <form className="requestForm" onSubmit={this.handleSubmit}>
-	        <input type="text" id="name" placeholder="Movie Name" />
-	        <input type="submit" value="Search" />
-	      </form>
-	    </div>
+            </div>
           );
 	}
       });
