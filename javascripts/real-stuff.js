@@ -57,7 +57,7 @@ var MovieRequest = React.createClass({
               <input type="text" id="name" placeholder="Movie Name" />
 	    </div>
 	    <div className="large-2 columns end">
-              <button class="round button" value="Search" onClick={this.handleSubmit} />
+              <a className="button round" onClick={this.handleSubmit}>Search</a>
 	    </div>
           </div>
         </div>
@@ -84,11 +84,21 @@ var MovieOverview = React.createClass({
 var MovieDetail = React.createClass({
   render: function() {
     console.log("Details:", this.props.movie);
+    var href = this.props.movie.Website;
+    var image;
+    if(href && href != "N/A") {
+      image = (<a href={href} className="th">
+                <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" />
+              </a>);
+    } else {
+      image = <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" />;
+    }
+
     // FIXME: The img tag should really be using CSS
     //console.warn("Go back to using 'real' src for img");
     // i.e. use {this.props.movie.Poster} and quit worrying about bandwidth
     return(
-      <span>  // because I have to return a single component
+      <span>  {/* because I have to return a single component */}
         <div className="row">
           <div className="large-12 columns">
             <div className="large-5 columns">{this.props.movie.Title}</div>
@@ -102,9 +112,7 @@ var MovieDetail = React.createClass({
         <div className="row">
           <div className="large-12 columns">
             <div>
-              <a href={this.props.movie.Website} className="th">
-                <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" />
-              </a>
+              {image}
             </div>
           </div>
         </div>
