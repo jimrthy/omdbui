@@ -94,12 +94,14 @@
         render: function() {
           console.log("Details:", this.props.movie);
           // FIXME: The img tag should really be using CSS
+          console.warn("Go back to using 'real' src for img");
+	      // i.e. use {this.props.movie.Poster} and quit worrying about bandwidth
           return(
 	      <div className="movieDetail">
 		<div className="movieDetailHeader">{this.props.movie.Title} - {this.props.movie.Released}</div>
 		<div className="movieDetailBody">{this.props.movie.Plot}</div>
 		<div><a href={this.props.movie.Website}>
-		    <img border="0" alt={this.props.movie.tomatoConsensus} src={this.props.movie.Poster}
+		    <img border="0" alt={this.props.movie.tomatoConsensus} src="frank-james.jpg"
 			 width="100" height="100" />
 		  </a>
 		</div>
