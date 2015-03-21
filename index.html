@@ -26,15 +26,25 @@
             If you can see this, React is not working right.
             If you checked out the source from GitHub make sure to run <code>grunt</code>.
           </p>
+          <p>
+          Otherwise, you're probably viewing this on your file system instead of a web server.
+          Try running
+          <pre>
+            python -m SimpleHTTPServer
+          </pre>
+          and going to <a href="http://localhost:8000">http://localhost:8000</p>
+          </p>
 	</div>
       </div>
     </div>
     <script src="javascripts/es5-shim.min.js"></script>
     <script src="javascripts/es5-sham.min.js"></script>
     <script src="javascripts/console-polyfill.js"></script>
-    <script src="jscripts/react-with-addons.js"></script>
+    <script src="javascripts/react-with-addons.js"></script>
     <script src="javascripts/JSXTransformer.js"></script>
-    <script src="javascripts/real-stuff.js"></script>
+    <script type="text/jsx" src="javascripts/real-stuff.js">
+
+    </script>
     <script>
     document.write('<script src=' +
     ('__proto__' in {} ? 'javascripts/vendor/zepto' : 'javascripts/vendor/jquery') +

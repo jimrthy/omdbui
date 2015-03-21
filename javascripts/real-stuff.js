@@ -88,6 +88,7 @@ var MovieDetail = React.createClass({
     //console.warn("Go back to using 'real' src for img");
     // i.e. use {this.props.movie.Poster} and quit worrying about bandwidth
     return(
+      <span>  // because I have to return a single component
         <div className="row">
           <div className="large-12 columns">
             <div className="large-5 columns">{this.props.movie.Title}</div>
@@ -107,7 +108,8 @@ var MovieDetail = React.createClass({
             </div>
           </div>
         </div>
-     );
+      </span>
+    );
   }
 });
 
