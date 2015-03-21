@@ -5,17 +5,15 @@
     <title>Movie Exploration</title>
     <link rel="stylesheet" href="css/base.css" />
     <link rel="stylesheet" href="css/transition.css" />
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.js"></script>
   </head>
   <body>
     <h1>Movies!</h1>
-    <div id="place-holder">
-      <div id="container">
-	<p>
-          If you can see this, React is not working right.
-          If you checked out the source from GitHub make sure to run <code>grunt</code>.
-	</p>
-      </div>
+    <div id="container">
+      <p>
+        If you can see this, React is not working right.
+        If you checked out the source from GitHub make sure to run <code>grunt</code>.
+      </p>
     </div>
     <script src="js/es5-shim.min.js"></script>
     <script src="js/es5-sham.min.js"></script>
@@ -27,20 +25,130 @@
       var INTERVAL = 2000;
 
       var MovieRequest = React.createClass({
+        handleSubmit: function(event) {
+          this.props.reset_state();
+          event.preventDefault();
+
+          // TODO: Really want to store this in state instead
+          var name = $("#name");
+          if(name.length != 0) {
+            $.ajax({
+              url: "http://omdbapi.com",
+              data: {s: name},
+              type: "GET",
+              dataType: "json",
+
+              success: function(json) {
+                console.log("Received:", json);
+	        // Here we have the AJAX object.
+	        console.log("In current scope, this looks like:", this);
+	        console.log("And component is", component);
+	        if(component.isMounted()) {
+                  var movies = json["Search"];
+                  if(movies) {
+                    console.log("Updating movie list with", movies);
+                    component.props.update_base_list(movies);
+                    console.log("State change scheduled");
+                  }
+	          else {
+	            console.log("No results found");
+	          }
+                }
+	        else {
+	          console.warn("Component unmounted before result returned");
+	        }
+              }.bind(this),
+              error: function(xhr, status, err) {
+                // Of course, by the time we get here, the state name could
+                // definitely have changes
+                console.error(this.state.name, status, err.toString());
+              }.bind(this)
+            });
+          }
+        },
+
         getInitialState: function() {
           return {"name": ""};
         },
+
         render: function() {
+          // TODO: should also submit if <Enter> is pressed when name has focus
           return (
-              <form onSubmit={this.props.submitter}>
+              <div key="submission-form">
                 <input type="text" id="name" placeholder="Movie Name" />
-                <input type="submit" value="Search" />
-	      </form>
+                <input type="button" value="Search" onClick={this.handleSubmit} />
+	      </div>
+          );
+        }
+      });
+
+      var MovieDetail = React.createClass({
+        render: function() {
+          // TODO: I should have a lot more details available very shortly
+          return(<div key={this.props.movie.imdbID}>{this.props.movie.title} - {this.props.movie.year}</div>);
+        }
+      });
+
+      var MovieDetailList = React.createClass({
+        render: function() {
+          var movieNodes = this.props.data.map(function(movie) {
+            return (
+              <MovieDetail key={movie.imdbID} movie={movie} />
+            );
+          });
+          return (
+            <div key="detail-list" className="movieList">{movieNodes}</div>
           );
         }
       });
 
       var MovieDetails = React.createClass({
+        resetState: function() {
+	    this.replaceState({});
+        },
+        updateBaseList: function(movies) {
+          console.log("Have movies. Scheduling state change through " + this);
+          
+          var description = {};
+          for(var n in movies) {
+            var movie = movies[n];
+            console.log("Adding to base state:", movie);
+            var title = movie["Title"];
+            var key = movie["imdbID"];
+            description[key] = {"title": title,
+                                "key": key,
+                                "year": movie["Year"]
+                               };
+            console.log("Not querying for details about " + title);
+            /* Don't do this yet: get the initial piece working
+            $.ajax({
+              url: "http://omdbapi.com",
+              data: {i: key,
+                     tomatoes: true},
+              dataType: "json",
+              success: function(details) {
+                console.log("Detail Received:", details);
+                console.log("Component:", component);
+                if(this.isMounted()) {
+                  var key2 = details["imdbID"];
+                  if(key != key2) {
+                    console.error("Querying for " + key + " returned " + key2);
+                  }
+	          details["key"] = key;
+                  this.setState({key: details});
+                }
+                else {
+                  console.log("Component unmounted from underneath us");
+                }
+              }.bind(this),
+              error: function(xhr, status, err) {
+                console.error(xhr, status, err);
+              }.bind(this)
+            }); */
+          };
+          this.setState(description);
+        },
+
         getInitialState: function() {
           return {};
         },
@@ -57,69 +165,23 @@
           this.setState({start: this.state.start + 1});
         },*/
 
-        handleSubmit: function(event) {
-          event.preventDefault();
-          this.setState({});
-
-	  // TODO: I'm almost positive I want to pull this from the Component instead
-          name = $("#name").val();
-          if(name.length != 0) {
-            $.ajax({
-              url: "http://omdbapi.com",
-              data: {s: name},
-              type: "GET",
-              dataType: "json",
-
-              success: function(json) {
-                console.log("Received:\n" + json);
-                var movies = json["Search"];
-                if(movies) {
-                  this.replaceState(function(previousState, currentProps) {
-	            var description = {};
-                    for(var movie in movies) {
-	              var title = movie["Title"];
-                      description[movie["imdbID"]] = {"title": title,
-                                                      "year": movie["Year"]
-                                                     };
-	              $.ajax({
-	                url: "http://omdbapi.com",
-	                data: {t: title,
-	                       tomatoes: true},
-	                dataType: "json",
-	                success: function(details) {
-	                  this.setState(function(previousState, currentProps) {
-	                    var nextState = previousState.clone();
-	                    var _id = json["imdbID"];
-	                    nextState[_id] = details;
-	                    return nextState;
-	                  });
-	                }
-	              });
-                    };
-	            return description;
-                  });
-                }
-              }
-            });
-          }
-        },
-
         render: function() {
-          result = [];
+          movies = [];
           if(this.state){
-            console.log(this.state);
+            console.log("Rendering:", this.state);
             for(var key in this.state) {
               movie = this.state[key];
-              result.push(<div>{movie.Title} - {movie.Year}</div>);
+              movies.push(movie);
             };
           }
           return(
             <div>
-	      <MovieRequest submitter={this.handleSubmit} />
+              <MovieRequest key="request-form" update_base_list={this.updateBaseList} reset_state={this.resetState} />
+              <MovieDetailList key="outer-list" data={movies} />
               <CSSTransitionGroup
                 className="animateExample"
                 transitionName="example">
-                {result}
+                {movies}
               </CSSTransitionGroup>
             </div>
           );
@@ -128,7 +190,7 @@
 
       React.render(
         <MovieDetails />,
-        document.getElementById('place-holder')
+        document.getElementById("container")
       );
     </script>
   </body>
