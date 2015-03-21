@@ -21,9 +21,7 @@
     <script src="js/react-with-addons.js"></script>
     <script src="js/JSXTransformer.js"></script>
     <script type="text/jsx">
-      var CSSTransitionGroup = React.addons.CSSTransitionGroup;
-      var INTERVAL = 2000;
-
+      /*******************************************************/
       var MovieRequest = React.createClass({
         handleSubmit: function(event) {
           this.props.reset_state();
@@ -86,24 +84,38 @@
         }
       });
 
-      var MovieDetail = React.createClass({
+      /**************************************************/
+      var MovieOverview = React.createClass({
         render: function() {
-          // TODO: I should have a lot more details available very shortly
-          return(<div key={this.props.movie.imdbID}>{this.props.movie.title} - {this.props.movie.year}</div>);
+	      console.log("Overview:", this.props.movie);
+          return(<div className="movieDetail">{this.props.movie.title} - {this.props.movie.year}</div>);
         }
       });
 
+      /**************************************************/
+      var MovieDetail = React.createClass({
+        render: function() {
+	      console.log("Details:", this.props.movie);
+          return(
+	      <div className="movieDetail">
+		<div className="movieDetailHeader">{this.props.movie.Title} - {this.props.movie.Released}</div>
+		<div className="movieDetailBody">{this.props.movie.Plot}</div>
+	      </div>
+	   );
+        }
+      });
+
+      /*****************************************************/
       var MovieDetailList = React.createClass({
         render: function() {
-	      /*var movieNodes = {}
-	      for(n in this.props.data) {
-	        movieNodes[n] = this.props.data[n];
-	      }
-              var children = React.addons.createFragment(movieNodes);*/
-            var movieNodes = this.props.data.map(function(movie) {
-            return (
-              <MovieDetail movie={movie} />
-            );
+          var movieNodes = this.props.data.map(function(movie) {
+            if(movie.Plot) {
+	      return(<MovieDetail movie={movie} />);
+            } else {
+              return (
+                <MovieOverview movie={movie} />
+                );
+            }
           });
           return (
             <div key="detail-list" className="movieList">{movieNodes}</div>
@@ -111,6 +123,7 @@
         }
       });
 
+      /*******************************************************/
       var MovieDetails = React.createClass({
         resetState: function() {
 	    this.replaceState({});
@@ -128,8 +141,7 @@
                                 "key": key,
                                 "year": movie["Year"]
                                };
-            console.log("Not querying for details about " + title);
-            /* Don't do this yet: get the initial piece working
+            console.log("<s>Not</s> querying for details about " + title);
             $.ajax({
               url: "http://omdbapi.com",
               data: {i: key,
@@ -137,14 +149,14 @@
               dataType: "json",
               success: function(details) {
                 console.log("Detail Received:", details);
-                console.log("Component:", component);
                 if(this.isMounted()) {
                   var key2 = details["imdbID"];
-                  if(key != key2) {
+                  // This isn't creating a separate closure for each callback handler
+                  // It doesn't matter, but it's a sad thing to learn
+                  /*if(key != key2) {
                     console.error("Querying for " + key + " returned " + key2);
-                  }
-	          details["key"] = key;
-                  this.setState({key: details});
+                  }*/
+                  this.setState({key2: details});
                 }
                 else {
                   console.log("Component unmounted from underneath us");
@@ -153,7 +165,7 @@
               error: function(xhr, status, err) {
                 console.error(xhr, status, err);
               }.bind(this)
-            }); */
+            });
           };
           console.log("Getting ready to change the state to", description);
           this.replaceState(description);
@@ -184,12 +196,6 @@
               movies.push(movie);
             };
           }
-	    /* Really want to involve something along these lines:
-              <CSSTransitionGroup
-                className="animateExample"
-                transitionName="example">
-                {movies}
-              </CSSTransitionGroup> */
           return(
             <div>
               <MovieRequest key="request-form" update_base_list={this.updateBaseList} reset_state={this.resetState} />
