@@ -50,10 +50,18 @@ var MovieRequest = React.createClass({
   render: function() {
     // TODO: should also submit if <Enter> is pressed when name has focus
     return (
-        <div key="submission-form">
-          <input type="text" id="name" placeholder="Movie Name" />
-          <input type="button" value="Search" onClick={this.handleSubmit} />
+      <div className="row">
+        <div className="large-12 columns">
+          <div key="submission-form">
+	    <div className="large-4 columns">
+              <input type="text" id="name" placeholder="Movie Name" />
+	    </div>
+	    <div className="large-2 columns end">
+              <button class="round button" value="Search" onClick={this.handleSubmit} />
+	    </div>
+          </div>
         </div>
+      </div>
     );
   }
 });
@@ -61,8 +69,14 @@ var MovieRequest = React.createClass({
 /**************************************************/
 var MovieOverview = React.createClass({
   render: function() {
-        console.log("Overview:", this.props.movie);
-    return(<div className="movieDetail">{this.props.movie.title} - {this.props.movie.year}</div>);
+    console.log("Overview:", this.props.movie);
+    return(
+      <div className="row">
+        <div className="large-5 columns">{this.props.movie.title}</div>
+        <div className="large-2 columns">-</div>
+        <div className="large-5 columns">{this.props.movie.year}</div>
+      </div>
+    );
   }
 });
 
@@ -73,14 +87,24 @@ var MovieDetail = React.createClass({
     // FIXME: The img tag should really be using CSS
     //console.warn("Go back to using 'real' src for img");
     // i.e. use {this.props.movie.Poster} and quit worrying about bandwidth
-    var style={width: 100, height: 100, border: 0};
     return(
-        <div className="movieDetail">
-          <div className="movieDetailHeader">{this.props.movie.Title} - {this.props.movie.Released}</div>
-          <div className="movieDetailBody">{this.props.movie.Plot}</div>
-          <div><a href={this.props.movie.Website}>
-              <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" style={style} />
-            </a>
+        <div className="row">
+          <div className="large-12 columns">
+            <div className="large-5 columns">{this.props.movie.Title}</div>
+            <div className="large-2 columns">-</div>
+            <div className="large-5 columns">{this.props.movie.Released}</div>
+          </div>
+        </div>
+        <div className="row">
+          <div className="large-12 columns">{this.props.movie.Plot}</div>
+        </div>
+        <div className="row">
+          <div className="large-12 columns">
+            <div>
+              <a href={this.props.movie.Website} className="th">
+                <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" />
+              </a>
+            </div>
           </div>
         </div>
      );
@@ -100,8 +124,12 @@ var MovieDetailList = React.createClass({
           );
       }
     });
+    // FIXME: Can I use ul class="block-grid three-up mobile-six-up"
+    // and then individual li's instead?
     return (
-      <div key={this.props.searchString} className="movieList">{movieNodes}</div>
+      <div key={this.props.searchString} className="row">
+        <div className="large-3 columns">{movieNodes}</div>
+      </div>
     );
   }
 });
