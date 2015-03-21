@@ -24,7 +24,6 @@
       /*******************************************************/
       var MovieRequest = React.createClass({
         handleSubmit: function(event) {
-          this.props.reset_state();
           event.preventDefault();
 
           // Really want to store this in state instead
@@ -32,6 +31,7 @@
           // <Enter> handler to the text box
           var name = $("#name").val();
           if(name.length != 0) {
+            this.props.reset_state(name);
             console.log("Querying for ", name);
             $.ajax({
               url: "http://omdbapi.com",
@@ -40,9 +40,6 @@
               dataType: "json",
 
               success: function(json) {
-                console.log("Received:", json);
-	        // Here we have the AJAX object.
-	        console.log("In current scope, this looks like:", this);
 	        if(this.isMounted()) {
                   var movies = json["Search"];
                   if(movies) {
@@ -61,7 +58,7 @@
               error: function(xhr, status, err) {
                 // Of course, by the time we get here, the state name could
                 // definitely have changes
-                console.error(this.state.name, status, err.toString());
+                console.error("Fetching failed:", this.state.name, status, err);
               }.bind(this)
             });
           } else {
@@ -95,11 +92,17 @@
       /**************************************************/
       var MovieDetail = React.createClass({
         render: function() {
-	      console.log("Details:", this.props.movie);
+          console.log("Details:", this.props.movie);
+          // FIXME: The img tag should really be using CSS
           return(
 	      <div className="movieDetail">
 		<div className="movieDetailHeader">{this.props.movie.Title} - {this.props.movie.Released}</div>
 		<div className="movieDetailBody">{this.props.movie.Plot}</div>
+		<div><a href={this.props.movie.Website}>
+		    <img border="0" alt={this.props.movie.tomatoConsensus} src={this.props.movie.Poster}
+			 width="100" height="100" />
+		  </a>
+		</div>
 	      </div>
 	   );
         }
@@ -118,15 +121,17 @@
             }
           });
           return (
-            <div key="detail-list" className="movieList">{movieNodes}</div>
+            <div key={this.props.searchString} className="movieList">{movieNodes}</div>
           );
         }
       });
 
       /*******************************************************/
       var MovieDetails = React.createClass({
-        resetState: function() {
-	    this.replaceState({});
+        resetState: function(searchString) {
+	    var state = this.getInitialState();
+	    state.lastSearch = searchString
+	    this.replaceState(state);
         },
         updateBaseList: function(movies) {
           console.log("Have movies. Scheduling state change through " + this);
@@ -152,27 +157,28 @@
                 if(this.isMounted()) {
                   var key2 = details["imdbID"];
                   // This isn't creating a separate closure for each callback handler
-                  // It doesn't matter, but it's a sad thing to learn
+                  // It shouldn't matter, but it's a sad thing to learn
                   /*if(key != key2) {
                     console.error("Querying for " + key + " returned " + key2);
                   }*/
-                  this.setState({key2: details});
+                  this.setState({"movies": {key2: details}});
                 }
                 else {
                   console.log("Component unmounted from underneath us");
                 }
               }.bind(this),
               error: function(xhr, status, err) {
-                console.error(xhr, status, err);
+                console.error("Retrieving Details Failed", xhr, status, err);
               }.bind(this)
             });
           };
           console.log("Getting ready to change the state to", description);
-          this.replaceState(description);
+          this.setState({"movies": description});
         },
 
         getInitialState: function() {
-          return {};
+          return {lastSearch: "",
+                  movies: {}};
         },
 
         /*componentDidMount: function() {
@@ -191,15 +197,16 @@
           movies = [];
           if(this.state){
             console.log("Rendering:", this.state);
-            for(var key in this.state) {
-              movie = this.state[key];
+            for(var key in this.state.movies) {
+              movie = this.state.movies[key];
+              movie.key = key
               movies.push(movie);
             };
           }
           return(
             <div>
               <MovieRequest key="request-form" update_base_list={this.updateBaseList} reset_state={this.resetState} />
-              <MovieDetailList key="outer-list" data={movies} />
+              <MovieDetailList key={this.state.lastSearch} data={movies} />
             </div>
           );
 	}
