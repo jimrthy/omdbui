@@ -130,7 +130,7 @@
       });
 
       /*******************************************************/
-      var MovieDetails = React.createClass({
+      var Movies = React.createClass({
         resetState: function(searchString) {
 	    var state = this.getInitialState();
 	    state.lastSearch = searchString
@@ -184,18 +184,6 @@
                   movies: {}};
         },
 
-        /*componentDidMount: function() {
-          this.interval = setInterval(this.tick, INTERVAL);
-        },
-
-        componentWillUnmount: function() {
-          clearInterval(this.interval);
-        },
-
-        tick: function() {
-          this.setState({start: this.state.start + 1});
-        },*/
-
         render: function() {
           movies = [];
           if(this.state){
@@ -206,7 +194,6 @@
               movies.push(movie);
             };
           }
-// key={this.state.lastSearch}
           return(
             <div>
               <MovieRequest key="request-form" update_base_list={this.updateBaseList} reset_state={this.resetState} />
@@ -217,7 +204,7 @@
       });
 
       React.render(
-        <MovieDetails />,
+        <Movies />,
         document.getElementById("container")
       );
     </script>
