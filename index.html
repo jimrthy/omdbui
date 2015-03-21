@@ -29,9 +29,12 @@
           this.props.reset_state();
           event.preventDefault();
 
-          // TODO: Really want to store this in state instead
-          var name = $("#name");
+          // Really want to store this in state instead
+          // TODO: I'll pretty much have to do that when I add the
+          // <Enter> handler to the text box
+          var name = $("#name").val();
           if(name.length != 0) {
+            console.log("Querying for ", name);
             $.ajax({
               url: "http://omdbapi.com",
               data: {s: name},
@@ -42,12 +45,11 @@
                 console.log("Received:", json);
 	        // Here we have the AJAX object.
 	        console.log("In current scope, this looks like:", this);
-	        console.log("And component is", component);
-	        if(component.isMounted()) {
+	        if(this.isMounted()) {
                   var movies = json["Search"];
                   if(movies) {
                     console.log("Updating movie list with", movies);
-                    component.props.update_base_list(movies);
+                    this.props.update_base_list(movies);
                     console.log("State change scheduled");
                   }
 	          else {
@@ -64,6 +66,8 @@
                 console.error(this.state.name, status, err.toString());
               }.bind(this)
             });
+          } else {
+            console.log("Nothing to query for");
           }
         },
 
