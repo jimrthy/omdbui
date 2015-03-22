@@ -53,12 +53,12 @@ var MovieRequest = React.createClass({
       <div className="row">
         <div className="large-12 columns">
           <div key="submission-form">
-	    <div className="large-4 columns">
+            <div className="large-4 columns">
               <input type="text" id="name" placeholder="Movie Name" />
-	    </div>
-	    <div className="large-2 columns end">
+            </div>
+            <div className="large-2 columns end">
               <a className="button round" onClick={this.handleSubmit}>Search</a>
-	    </div>
+            </div>
           </div>
         </div>
       </div>
@@ -71,10 +71,10 @@ var MovieOverview = React.createClass({
   render: function() {
     console.log("Overview:", this.props.movie);
     return(
-      <div className="row">
-        <div className="large-5 columns">{this.props.movie.title}</div>
-        <div className="large-2 columns">-</div>
-        <div className="large-5 columns">{this.props.movie.year}</div>
+      <div className="panel row">
+          <div className="large-1 columns">{this.props.movie.title}</div>
+          <div className="large-1 columns">-</div>
+          <div className="large-1 columns">{this.props.movie.year}</div>
       </div>
     );
   }
@@ -98,25 +98,23 @@ var MovieDetail = React.createClass({
     //console.warn("Go back to using 'real' src for img");
     // i.e. use {this.props.movie.Poster} and quit worrying about bandwidth
     return(
-      <span>  {/* because I have to return a single component */}
+      <div className="panel">
         <div className="row">
-          <div className="large-12 columns">
-            <div className="large-5 columns">{this.props.movie.Title}</div>
-            <div className="large-2 columns">-</div>
-            <div className="large-5 columns">{this.props.movie.Released}</div>
+          <div className="large-3 columns">
+            <div className="large-1 columns">{this.props.movie.Title}</div>
+            <div className="large-1 columns">-</div>
+            <div className="large-1 columns">{this.props.movie.Released}</div>
           </div>
-        </div>
-        <div className="row">
-          <div className="large-12 columns">{this.props.movie.Plot}</div>
-        </div>
-        <div className="row">
-          <div className="large-12 columns">
+          <div className="large-4 columns">
+            {this.props.movie.Plot}
+          </div>
+          <div className="large-5 columns">
             <div>
               {image}
             </div>
           </div>
         </div>
-      </span>
+      </div>
     );
   }
 });
@@ -137,8 +135,8 @@ var MovieDetailList = React.createClass({
     // FIXME: Can I use ul class="block-grid three-up mobile-six-up"
     // and then individual li's instead?
     return (
-      <div key={this.props.searchString} className="row">
-        <div className="large-3 columns">{movieNodes}</div>
+      <div id="details" key={this.props.searchString} className="row">
+        {movieNodes}
       </div>
     );
   }
