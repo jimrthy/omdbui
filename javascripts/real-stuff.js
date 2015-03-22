@@ -179,7 +179,9 @@ var Movies = React.createClass({
             /*if(key != key2) {
               console.error("Querying for " + key + " returned " + key2);
             }*/
-            this.setState({"movies": {key2: details}});
+            var current = this.state.movies;
+            current[key2] = details;
+            this.setState({"movies": current});
           } else {
             console.log("Component unmounted from underneath us");
           }
