@@ -72,8 +72,7 @@ var MovieOverview = React.createClass({
     console.log("Overview:", this.props.movie);
     return(
       <div className="panel row">
-          <div className="large-1 columns">{this.props.movie.title}</div>
-          <div className="large-1 columns">-</div>
+          <div className="large-2 columns">{this.props.movie.title}</div>
           <div className="large-1 columns">{this.props.movie.year}</div>
       </div>
     );
@@ -86,12 +85,19 @@ var MovieDetail = React.createClass({
     console.log("Details:", this.props.movie);
     var href = this.props.movie.Website;
     var image;
-    if(href && href != "N/A") {
-      image = (<a href={href} className="th">
-                <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" />
-              </a>);
+    var alt = (this.props.movie.tomatoConsensus &&
+               this.props.movie.tomatoConsensus != "N/A") || this.props.movie.Title;
+    var src = this.props.movie.Poster;
+    if(src && src != "N/A") {
+      if(href && href != "N/A") {
+        image = (<a href={href} className="th">
+                  <img alt={alt} src={src} />
+                </a>);
+      } else {
+        image = <img alt={alt} src={src} />;
+      }
     } else {
-      image = <img alt={this.props.movie.tomatoConsensus} src="frank-james.jpg" />;
+	image = <img alt={alt} src="imgs/not-found.png" />;
     }
 
     // FIXME: The img tag should really be using CSS
@@ -100,11 +106,8 @@ var MovieDetail = React.createClass({
     return(
       <div className="panel">
         <div className="row">
-          <div className="large-3 columns">
-            <div className="large-1 columns">{this.props.movie.Title}</div>
-            <div className="large-1 columns">-</div>
-            <div className="large-1 columns">{this.props.movie.Released}</div>
-          </div>
+          <div className="large-2 columns">{this.props.movie.Title}</div>
+          <div className="large-1 columns">{this.props.movie.Released}</div>
           <div className="large-4 columns">
             {this.props.movie.Plot}
           </div>
@@ -132,7 +135,7 @@ var MovieDetailList = React.createClass({
           );
       }
     });
-    // FIXME: Can I use ul class="block-grid three-up mobile-six-up"
+    // Q: Can I use ul class="block-grid three-up mobile-six-up"
     // and then individual li's instead?
     return (
       <div id="details" key={this.props.searchString} className="row">
